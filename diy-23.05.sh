@@ -148,7 +148,7 @@ clone_all() {
 }
 
 # 设置编译源码与分支
-REPO_URL="https://github.com/immortalwrt/immortalwrt"
+REPO_URL="https://github.com/coolsnowwolf/lede"
 echo "REPO_URL=$REPO_URL" >>$GITHUB_ENV
 REPO_BRANCH="openwrt-23.05"
 echo "REPO_BRANCH=$REPO_BRANCH" >>$GITHUB_ENV
@@ -236,7 +236,7 @@ color cy "添加&替换插件"
 
 # 修改主机名字，修改你喜欢的就行（不能纯数字或者使用中文）
 sed -i "/uci commit system/i\uci set system.@system[0].hostname='EthanWRT'" package/lean/default-settings/files/zzz-default-settings
-sed -i "s/hostname='.*'/hostname='Ethan'/g" ./package/base-files/files/bin/config_generate
+sed -i "s/hostname='.*'/hostname='EthanWRT'/g" ./package/base-files/files/bin/config_generate
 
 # 添加额外插件
 # clone_dir openwrt-23.05 https://github.com/coolsnowwolf/luci luci-app-adguardhome
