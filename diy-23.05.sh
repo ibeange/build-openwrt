@@ -250,8 +250,8 @@ git_clone https://github.com/sbwml/packages_lang_golang golang
 # clone_all https://github.com/linkease/istore-ui
 # clone_all https://github.com/linkease/istore luci
 
-git_clone https://github.com/brvphoenix/luci-app-wrtbwmon
-git_clone https://github.com/brvphoenix/wrtbwmon
+clone_all https://github.com/brvphoenix/luci-app-wrtbwmon
+clone_all https://github.com/brvphoenix/wrtbwmon
 
 # ddns-go 动态域名
 # clone_all https://github.com/sirpdboy/luci-app-ddns-go
