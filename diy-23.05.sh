@@ -250,14 +250,14 @@ git_clone https://github.com/sbwml/packages_lang_golang golang
 # clone_all https://github.com/linkease/istore-ui
 # clone_all https://github.com/linkease/istore luci
 
-clone_all https://github.com/brvphoenix/luci-app-wrtbwmon
-clone_all https://github.com/brvphoenix/wrtbwmon
+git_clone https://github.com/brvphoenix/luci-app-wrtbwmon
+git_clone https://github.com/brvphoenix/wrtbwmon
 
 # ddns-go 动态域名
-clone_all https://github.com/sirpdboy/luci-app-ddns-go
+# clone_all https://github.com/sirpdboy/luci-app-ddns-go
 
 # lucky 大吉
-clone_all https://github.com/gdy666/luci-app-lucky
+clone_all https://github.com/sirpdboy/luci-app-lucky
 
 git clone --depth 1 https://github.com/sirpdboy/luci-app-poweroffdevice package/luci-app-poweroffdevice
 
@@ -274,10 +274,10 @@ git_clone https://github.com/jerrykuku/luci-theme-argon
 git_clone https://github.com/jerrykuku/luci-app-argon-config
 
 # 晶晨宝盒
-clone_all https://github.com/ophub/luci-app-amlogic
-sed -i "s|firmware_repo.*|firmware_repo 'https://github.com/$GITHUB_REPOSITORY'|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
+# clone_all https://github.com/ophub/luci-app-amlogic
+# sed -i "s|firmware_repo.*|firmware_repo 'https://github.com/$GITHUB_REPOSITORY'|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
 # sed -i "s|kernel_path.*|kernel_path 'https://github.com/ophub/kernel'|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|ARMv8|$RELEASE_TAG|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
+# sed -i "s|ARMv8|$RELEASE_TAG|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
 
 # 开始加载个人设置
 begin_time=$(date '+%H:%M:%S')
@@ -291,7 +291,8 @@ if [ $PART_SIZE ]; then
 fi
 
 # 修改默认IP
-[ $DEFAULT_IP ] && sed -i '/n) ipad/s/".*"/"'"$DEFAULT_IP"'"/' package/base-files/files/bin/config_generate
+# [ $DEFAULT_IP ] && sed -i '/n) ipad/s/".*"/"'"$DEFAULT_IP"'"/' package/base-files/files/bin/config_generate
+[ $DEFAULT_IP ] && sed -i 's/192.168.1.1/"'"$DEFAULT_IP"'"/'package/base-files/files/bin/config_generate
 
 # 更改默认 Shell 为 zsh
 # sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
@@ -312,8 +313,8 @@ cp -f $GITHUB_WORKSPACE/images/bg1.jpg feeds/luci/themes/luci-theme-argon/htdocs
 sed -i 's/system/status/g' feeds/luci/applications/luci-app-netdata/luasrc/controller/netdata.lua
 
 # 更改 ttyd 顺序和名称
-sed -i '3a \		"order": 10,' feeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/luci-app-ttyd.json
-sed -i 's/\"终端\"/\"TTYD 终端\"/g' feeds/luci/applications/luci-app-ttyd/po/zh_Hans/ttyd.po
+# sed -i '3a \		"order": 10,' feeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/luci-app-ttyd.json
+# sed -i 's/\"终端\"/\"TTYD 终端\"/g' feeds/luci/applications/luci-app-ttyd/po/zh_Hans/ttyd.po
 
 # 设置 nlbwmon 独立菜单
 sed -i 's/services\/nlbw/nlbw/g; /path/s/admin\///g' feeds/luci/applications/luci-app-nlbwmon/root/usr/share/luci/menu.d/luci-app-nlbwmon.json
