@@ -234,26 +234,38 @@ destination_dir="package/A"
 
 color cy "添加&替换插件"
 
+# 修改主机名字，修改你喜欢的就行（不能纯数字或者使用中文）
+sed -i "/uci commit system/i\uci set system.@system[0].hostname='EthanWRT'" package/lean/default-settings/files/zzz-default-settings
+sed -i "s/hostname='.*'/hostname='Ethan'/g" ./package/base-files/files/bin/config_generate
+
 # 添加额外插件
-clone_dir openwrt-23.05 https://github.com/coolsnowwolf/luci luci-app-adguardhome
-git_clone https://github.com/immortalwrt/homeproxy luci-app-homeproxy
-clone_all https://github.com/morytyann/OpenWrt-mihomo
+# clone_dir openwrt-23.05 https://github.com/coolsnowwolf/luci luci-app-adguardhome
+# git_clone https://github.com/immortalwrt/homeproxy luci-app-homeproxy
+# clone_all https://github.com/morytyann/OpenWrt-mihomo
 
 clone_all https://github.com/sbwml/luci-app-alist
-clone_all https://github.com/sbwml/luci-app-mosdns
+# clone_all https://github.com/sbwml/luci-app-mosdns
 git_clone https://github.com/sbwml/packages_lang_golang golang
 
-clone_all https://github.com/linkease/istore-ui
-clone_all https://github.com/linkease/istore luci
+# clone_all https://github.com/linkease/istore-ui
+# clone_all https://github.com/linkease/istore luci
 
 clone_all https://github.com/brvphoenix/luci-app-wrtbwmon
 clone_all https://github.com/brvphoenix/wrtbwmon
 
+# ddns-go 动态域名
+clone_all https://github.com/sirpdboy/luci-app-ddns-go
+
+# lucky 大吉
+clone_all https://github.com/gdy666/luci-app-lucky
+
+git clone --depth 1 https://github.com/sirpdboy/luci-app-poweroffdevice package/luci-app-poweroffdevice
+
 # 科学上网插件
-clone_all https://github.com/fw876/helloworld
-clone_all https://github.com/xiaorouji/openwrt-passwall-packages
-clone_all https://github.com/xiaorouji/openwrt-passwall
-clone_all https://github.com/xiaorouji/openwrt-passwall2
+# clone_all https://github.com/fw876/helloworld
+# clone_all https://github.com/xiaorouji/openwrt-passwall-packages
+# clone_all https://github.com/xiaorouji/openwrt-passwall
+# clone_all https://github.com/xiaorouji/openwrt-passwall2
 clone_dir https://github.com/vernesong/OpenClash luci-app-openclash
 
 # Themes
@@ -307,6 +319,53 @@ sed -i 's/\"终端\"/\"TTYD 终端\"/g' feeds/luci/applications/luci-app-ttyd/po
 sed -i 's/services\/nlbw/nlbw/g; /path/s/admin\///g' feeds/luci/applications/luci-app-nlbwmon/root/usr/share/luci/menu.d/luci-app-nlbwmon.json
 sed -i 's/services\///g' feeds/luci/applications/luci-app-nlbwmon/htdocs/luci-static/resources/view/nlbw/config.js
 
+# 在线用户
+git_sparse_clone main https://github.com/haiibo/packages luci-app-onliner
+sed -i '$i uci set nlbwmon.@nlbwmon[0].refresh_interval=2s' package/lean/default-settings/files/zzz-default-settings
+sed -i '$i uci commit nlbwmon' package/lean/default-settings/files/zzz-default-settings
+chmod 755 package/luci-app-onliner/root/usr/share/onliner/setnlbw.sh
+
+# x86 型号只显示 CPU 型号
+sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/lean/autocore/files/x86/autocore
+
+# 修改版本号
+# sed -i "s|DISTRIB_REVISION='.*'|DISTRIB_REVISION='R$(date +%y.%m.%d)'|g" package/lean/default-settings/files/zzz-default-settings
+
+# 设置ttyd免帐号登录
+sed -i 's/\/bin\/login/\/bin\/login -f root/' feeds/packages/utils/ttyd/files/ttyd.config
+
+# 最大连接数修改为65535
+sed -i '$a net.netfilter.nf_conntrack_max=65535' package/base-files/files/etc/sysctl.conf
+
+# 修改本地时间格式
+sed -i 's/os.date()/os.date("%a %Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/*/index.htm
+
+#nlbwmon 修复log警报
+sed -i '$a net.core.wmem_max=16777216' package/base-files/files/etc/sysctl.conf
+sed -i '$a net.core.rmem_max=16777216' package/base-files/files/etc/sysctl.conf
+
+# 替换curl修改版（无nghttp3、ngtcp2）
+curl_ver=$(grep -i "PKG_VERSION:=" feeds/packages/net/curl/Makefile | awk -F'=' '{print $2}')
+if [ "$curl_ver" != "8.11.1" ]; then
+    echo "当前 curl 版本是: $curl_ver,开始替换......"
+    rm -rf feeds/packages/net/curl
+    cp -rf $GITHUB_WORKSPACE/personal/curl feeds/packages/net/curl
+fi
+
+# 修改版本为编译日期
+date_version=$(date +"%y.%m.%d")
+orig_version=$(cat "package/lean/default-settings/files/zzz-default-settings" | grep DISTRIB_REVISION= | awk -F "'" '{print $2}')
+sed -i "s/${orig_version}/R${date_version} by Ethan/g" package/lean/default-settings/files/zzz-default-settings
+
+# 修改欢迎banner
+# cp -f $GITHUB_WORKSPACE/personal/banner package/base-files/files/etc/banner
+# wget -O ./package/base-files/files/etc/banner https://raw.githubusercontent.com/Jejz168/OpenWrt/main/personal/banner
+sed -i "/\\   DE \//s/$/  [31mBy @Ethan build $(TZ=UTC-8 date '+%Y.%m.%d')[0m/" package/base-files/files/etc/banner
+cat package/base-files/files/etc/banner
+
+# 修复 hostapd 报错
+cp -f $GITHUB_WORKSPACE/scripts/011-fix-mbo-modules-build.patch package/network/services/hostapd/patches/011-fix-mbo-modules-build.patch
+
 # 修复 Makefile 路径
 find $destination_dir/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i \
     -e 's?\.\./\.\./luci.mk?$(TOPDIR)/feeds/luci/luci.mk?' \
@@ -339,12 +398,17 @@ status "加载个人设置"
 }
 
 # 开始下载adguardhome运行内核
-[ $CLASH_KERNEL ] && {
-    begin_time=$(date '+%H:%M:%S')
-    chmod +x $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh
-    $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh $CLASH_KERNEL
-    status "下载adguardhome运行内核"
-}
+# [ $CLASH_KERNEL ] && {
+#    begin_time=$(date '+%H:%M:%S')
+#    chmod +x $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh
+#    $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh $CLASH_KERNEL
+#    status "下载adguardhome运行内核"
+# }
+
+# 调整 V2ray服务器 到 VPN 菜单
+sed -i 's/services/vpn/g' feeds/luci/applications/luci-app-v2ray-server/luasrc/controller/*.lua
+sed -i 's/services/vpn/g' feeds/luci/applications/luci-app-v2ray-server/luasrc/model/cbi/v2ray_server/*.lua
+sed -i 's/services/vpn/g' feeds/luci/applications/luci-app-v2ray-server/luasrc/view/v2ray_server/*.htm
 
 # 开始更新配置文件
 begin_time=$(date '+%H:%M:%S')
