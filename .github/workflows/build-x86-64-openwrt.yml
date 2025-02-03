@@ -19,13 +19,6 @@ on:
         default: 'x86-64'
         type: choice
         options: [x86-64]
-        
-      openwrt_kernel:
-        description: '选择内核版本'
-        required: false
-        default: '6.6'
-        type: choice
-        options: [5.15, 6.6]
 
       ip:
         description: '设置默认登录IP'
@@ -164,14 +157,6 @@ jobs:
     - name: Load Compile Script
       run: chmod +x $DIY_SCRIPT && ./$DIY_SCRIPT
      
-
-    - name: Change Kernel
-      if: env.KERNEL_TYPE == '5.15'
-      run: |
-        sed -i 's/CONFIG_LINUX.*/CONFIG_LINUX_5_15=y/g' .config
-        sed -i 's/CONFIG_TARGET_ROOTFS_PARTSIZE.*/CONFIG_TARGET_ROOTFS_PARTSIZE=1668/g' .config
-        sed -i 's/KERNEL_PATCHVER:=*.*/KERNEL_PATCHVER:=5.15/g' target/linux/x86/Makefile
-        #sed -i 's/KERNEL_TESTING_PATCHVER:=*.*/KERNEL_TESTING_PATCHVER:=5.15/g' target/linux/x86/Makefile
 
     - name: Compile Toolchain
       if: env.REBUILD_TOOLCHAIN == 'true'
