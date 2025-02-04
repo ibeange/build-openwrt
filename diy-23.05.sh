@@ -293,7 +293,9 @@ fi
 # 修改默认IP
 # [ $DEFAULT_IP ] && sed -i '/n) ipad/s/".*"/"'"$DEFAULT_IP"'"/' package/base-files/files/bin/config_generate
 # sed -i 's/192.168.1.1/"'"$DEFAULT_IP"'"/' package/base-files/files/bin/config_generate
-sed -i 's/192.168.1.1/10.1.0.9/g' package/base-files/files/bin/config_generate
+DEF_IP="$DEFAULT_IP"  # 从命令行参数获取 IP
+sed -i "/set network.lan.ipaddr='/s/192.168.1.1/${DEF_IP}/" package/base-files/files/bin/config_generate
+# sed -i 's/192.168.1.1/10.1.0.9/g' package/base-files/files/bin/config_generate
 
 # 更改默认 Shell 为 zsh
 sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
