@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+# 修改默认IP
+[ $DEFAULT_IP ] && sed -i '/n) ipad/s/".*"/"'"$DEFAULT_IP"'"/' package/base-files/files/bin/config_generate
+sed -i 's/192.168.1.1/10.1.0.1/g' package/base-files/files/bin/config_generate
+
 # 打包Toolchain
 if [[ $REBUILD_TOOLCHAIN = 'true' ]]; then
     echo -e "\e[1;33m开始打包toolchain目录\e[0m"
