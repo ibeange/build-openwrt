@@ -85,7 +85,6 @@ jobs:
       CONFIG_FILE: configs/${{ github.event.inputs.target }}-${{ github.event.inputs.source }}.config
       DIY_SCRIPT: diy-${{ github.event.inputs.source }}.sh
       RELEASE_TAG: ${{ github.event.inputs.target }}-${{ github.event.inputs.source }}
-      KERNEL_TYPE: ${{ github.event.inputs.openwrt_kernel }}
       TOOLCHAIN_TAG: toolchain
       UPLOAD_BIN_DIR: false
       TZ: Asia/Shanghai
@@ -259,3 +258,53 @@ jobs:
           - ${{ env.COMMIT_DATE }}
           - ${{ env.COMMIT_MESSAGE }}
           - ${{ env.COMMIT_HASH }}
+
+    - name: Completion time 
+      run: |
+        echo "END=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
+        end=$(date +%s)
+        seconds=$(( end - start ))
+        hour=$(( $seconds/3600 ))
+        min=$(( ($seconds-${hour}*3600)/60 ))
+        sec=$(( $seconds-${hour}*3600-${min}*60 ))
+        HMS=`echo ${hour}:${min}:${sec}`
+        echo "time=$HMS" >> $GITHUB_ENV
+
+    - name: Telegram notification upload success
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ♨️ ${{ env.DEVICE_TARGET }}_${{ env.KERNEL_VERSION }}[LEDE-2305]编译完成
+          开始时间：${{ env.DATE }}
+          完成时间：${{ env.END }}
+          编译耗时：${{ env.time }}
+          🎈🎈🎈 更新信息 🎈🎈🎈
+          作者: ${{ env.author }}
+          时间: ${{ env.date }}
+          内容: ${{ env.commit }}
+          hash: ${{ env.hash }}
+          ✪ ✣ ✤ ✥ ✦ ❉ ❦ ❧ ❃ ❂ ❁ ❀
+          📍: https://github.com/ibeange/OpenWrt_New/releases/tag/${{ env.TAG }}-2305_${{ env.KERNEL_VERSION }}
+
+    - name: Push notification upload success
+      uses: chimpdev/bark-github-action@v1.0.4
+      with:
+        device_key: ${{ secrets.BARK_KEY }}
+        server_url: ${{ secrets.BARK_SERVER_URL }}
+        title: "[LEDE-2305]${{ env.DEVICE_TARGET }}_${{ env.KERNEL_VERSION }}编译完成"
+        body: |
+          ♨️ ${{ env.DEVICE_TARGET }}_${{ env.KERNEL_VERSION }}[LEDE-2305]编译完成
+          开始时间：${{ env.DATE }}
+          完成时间：${{ env.END }}
+          编译耗时：${{ env.time }}
+          🎈🎈🎈 更新信息 🎈🎈🎈
+          作者: ${{ env.author }}
+          时间: ${{ env.date }}
+          内容: ${{ env.commit }}
+          hash: ${{ env.hash }}
+          ✪ ✣ ✤ ✥ ✦ ❉ ❦ ❧ ❃ ❂ ❁ ❀
+          📍: https://github.com/ibeange/OpenWrt_New/releases/tag/${{ env.RELEASE_TAG }}-2305_${{ env.KERNEL_VERSION }}
+        url: https://github.com/ibeange/OpenWrt_New/releases/tag/${{ env.RELEASE_TAG }}-2305_${{ env.KERNEL_VERSION }}
+      if: always() # Run this step regardless of the outcome of previous steps
