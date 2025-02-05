@@ -236,7 +236,7 @@ color cy "添加&替换插件"
 
 # 修改主机名字，修改你喜欢的就行（不能纯数字或者使用中文）
 sed -i "/uci commit system/i\uci set system.@system[0].hostname='EthanWRT'" package/lean/default-settings/files/zzz-default-settings
-sed -i "s/hostname='.*'/hostname='EthanWRT'/g" ./package/base-files/files/bin/config_generate
+sed -i "s/hostname='.*'/hostname='EthanWRT'/g" ./package/base-files/luci2/bin/config_generate
 
 # 添加额外插件
 # clone_dir openwrt-23.05 https://github.com/coolsnowwolf/luci luci-app-adguardhome
@@ -292,13 +292,8 @@ fi
 
 # 修改默认IP
 echo -e "$(color cy 选择的IP是) $(color cb $DEFAULT_IP)"
-[ $DEFAULT_IP ] && sed -i '/n) ipad/s/".*"/"'"$DEFAULT_IP"'"/' package/base-files/files/bin/config_generate
-sed -i 's/192.168.1.1/10.1.0.1/g' package/base-files/files/bin/config_generate
-# sed -i 's/192.168.1.1/"'"$DEFAULT_IP"'"/' package/base-files/files/bin/config_generate
-# DEF_IP=$DEFAULT_IP  # 从命令行参数获取 IP
-# sed -i "s/192.168.1.1/${DEF_IP}/g" package/base-files/files/bin/config_generate
-# sed -i "/set network.lan.ipaddr='/s/192.168.1.1/${DEF_IP}/" package/base-files/files/bin/config_generate
-# sed -i 's/192.168.1.1/10.1.0.9/g' package/base-files/files/bin/config_generate
+[ $DEFAULT_IP ] && sed -i '/n) ipad/s/".*"/"'"$DEFAULT_IP"'"/' package/base-files/luci2/bin/config_generate
+# sed -i 's/192.168.1.1/10.1.0.1/g' package/base-files/files/bin/config_generate
 
 # 更改默认 Shell 为 zsh
 sed -i 's/\/bin\/ash/\/usr\/bin\/zsh/g' package/base-files/files/etc/passwd
@@ -363,7 +358,7 @@ sed -i '$a net.core.rmem_max=16777216' package/base-files/files/etc/sysctl.conf
 # 修改版本为编译日期
 # date_version=$(date +"%y.%m.%d")
 # orig_version=$(cat "package/lean/default-settings/files/zzz-default-settings" | grep DISTRIB_REVISION= | awk -F "'" '{print $2}')
-sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='EthanWRT-$(date +%Y%m%d)'/g" package/lean/default-settings/files/zzz-default-settings   
+sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='EthanWRT'/g" package/lean/default-settings/files/zzz-default-settings   
 sed -i "s/DISTRIB_REVISION='*.*'/DISTRIB_REVISION=' By Ethan'/g" package/lean/default-settings/files/zzz-default-settings
 
 # 修改欢迎banner
