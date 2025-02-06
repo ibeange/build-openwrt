@@ -277,5 +277,5 @@ jobs:
         server_url: ${{ secrets.BARK_SERVER_URL }}
         title: "[LEDE-2305]${{ env.DEVICE_TARGET }}_${{ env.KERNEL_VERSION }}编译完成"
         body: "开始时间：${{ env.DATE }}%0D%0A完成时间：${{ env.END }}%0D%0A编译耗时：${{ env.time }}%0D%0A🎈🎈🎈 更新信息 🎈🎈🎈%0D%0A作者: ${{ env.COMMIT_AUTHOR }}%0D%0A时间: ${{ env.COMMIT_DATE }}%0D%0A内容: ${{ env.COMMIT_MESSAGE }}%0D%0Ahash: ${{ env.COMMIT_HASH }}"
-        url: https://github.com/ibeange/OpenWrt_New/releases/tag/${{ env.RELEASE_TAG }}
+        url: https://github.com/ibeange/build-openwrt/releases/tag/${{ env.RELEASE_TAG }}
       if: always() # Run this step regardless of the outcome of previous steps
