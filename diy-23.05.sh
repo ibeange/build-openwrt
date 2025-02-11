@@ -245,7 +245,8 @@ sed -i "s/hostname='.*'/hostname='EthanWRT'/g" ./package/base-files/luci2/bin/co
 
 clone_all https://github.com/sbwml/luci-app-alist
 # clone_all https://github.com/sbwml/luci-app-mosdns
-git_clone https://github.com/sbwml/packages_lang_golang golang
+rm -rf feeds/packages/lang/golang
+git_clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
 
 # clone_all https://github.com/linkease/istore-ui
 # clone_all https://github.com/linkease/istore luci
