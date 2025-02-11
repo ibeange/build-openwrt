@@ -243,10 +243,9 @@ sed -i "s/hostname='.*'/hostname='EthanWRT'/g" ./package/base-files/luci2/bin/co
 # git_clone https://github.com/immortalwrt/homeproxy luci-app-homeproxy
 # clone_all https://github.com/morytyann/OpenWrt-mihomo
 
+# alist
+git_clone https://github.com/sbwml/packages_lang_golang golang
 clone_all https://github.com/sbwml/luci-app-alist
-# clone_all https://github.com/sbwml/luci-app-mosdns
-rm -rf feeds/packages/lang/golang
-git_clone https://github.com/sbwml/packages_lang_golang -b 23.x feeds/packages/lang/golang
 
 # clone_all https://github.com/linkease/istore-ui
 # clone_all https://github.com/linkease/istore luci
