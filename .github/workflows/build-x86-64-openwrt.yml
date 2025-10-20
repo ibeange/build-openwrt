@@ -6,7 +6,7 @@ on:
       source:
         description: '选择要编译的LUCI版本'
         required: true
-        default: '23.10'
+        default: '24.10'
         type: choice
         options: [18.06, 23.05, 24.10]
 
