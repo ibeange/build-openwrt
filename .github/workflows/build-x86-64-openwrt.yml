@@ -6,7 +6,7 @@ on:
       source:
         description: '选择要编译的LUCI版本'
         required: true
-        default: '18.06'
+        default: '23.05'
         type: choice
         options: [18.06, 23.05]
 
@@ -20,12 +20,12 @@ on:
       ip:
         description: '设置默认登录IP'
         required: false
-        default: '10.0.0.2'
+        default: '10.1.0.1'
 
       partsize:
         description: '设置rootfs大小'
         required: false
-        default: '800'
+        default: '2048'
 
       toolchain:
         description: '使用toolchain缓存'
@@ -43,8 +43,6 @@ on:
         description: '预设openclash内核'
         required: false
         default: 'amd64'
-        type: choice
-        options: [false, amd64, arm64, armv7, armv6, armv5, 386]
 
       artifact:
         description: '上传固件到Artifact'
@@ -232,3 +230,24 @@ jobs:
           - ${{ env.COMMIT_DATE }}
           - ${{ env.COMMIT_MESSAGE }}
           - ${{ env.COMMIT_HASH }}
+
+    - name: Completion time 
+      run: |
+        echo "END=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
+        end=$(date +%s)
+        seconds=$(( end - start ))
+        hour=$(( $seconds/3600 ))
+        min=$(( ($seconds-${hour}*3600)/60 ))
+        sec=$(( $seconds-${hour}*3600-${min}*60 ))
+        HMS=`echo ${hour}:${min}:${sec}`
+        echo "time=$HMS" >> $GITHUB_ENV
+
+    - name: Push notification upload success
+      uses: chimpdev/bark-github-action@v1.0.4
+      with:
+        device_key: ${{ secrets.BARK_KEY }}
+        server_url: ${{ secrets.BARK_SERVER_URL }}
+        title: "[LEDE-2305]${{ env.DEVICE_TARGET }}_${{ env.KERNEL_VERSION }}编译完成"
+        body: "开始时间：${{ env.DATE }}%0D%0A完成时间：${{ env.END }}%0D%0A编译耗时：${{ env.time }}%0D%0A🎈🎈🎈 更新信息 🎈🎈🎈%0D%0A作者: ${{ env.COMMIT_AUTHOR }}%0D%0A时间: ${{ env.COMMIT_DATE }}%0D%0A内容: ${{ env.COMMIT_MESSAGE }}%0D%0Ahash: ${{ env.COMMIT_HASH }}"
+        url: https://github.com/ibeange/build-openwrt/releases/tag/${{ env.RELEASE_TAG }}
+      if: always() # Run this step regardless of the outcome of previous steps
