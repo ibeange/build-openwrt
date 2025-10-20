@@ -232,30 +232,38 @@ destination_dir="package/A"
 
 color cy "添加&替换插件"
 
+# 修改主机名字，修改你喜欢的就行（不能纯数字或者使用中文）
+sed -i "/uci commit system/i\uci set system.@system[0].hostname='EthanWRT'" package/lean/default-settings/files/zzz-default-settings
+sed -i "s/hostname='.*'/hostname='EthanWRT'/g" ./package/base-files/luci2/bin/config_generate
+
 # 添加额外插件
-clone_dir openwrt-23.05 https://github.com/coolsnowwolf/luci luci-app-adguardhome
-git_clone https://github.com/immortalwrt/homeproxy luci-app-homeproxy
-clone_all https://github.com/nikkinikki-org/OpenWrt-nikki
-clone_all https://github.com/nikkinikki-org/OpenWrt-momo
-clone_dir https://github.com/QiuSimons/luci-app-daed daed luci-app-daed
+# clone_dir openwrt-23.05 https://github.com/coolsnowwolf/luci luci-app-adguardhome
+# git_clone https://github.com/immortalwrt/homeproxy luci-app-homeproxy
+# clone_all https://github.com/nikkinikki-org/OpenWrt-nikki
+# clone_all https://github.com/nikkinikki-org/OpenWrt-momo
+# clone_dir https://github.com/QiuSimons/luci-app-daed daed luci-app-daed
 
 clone_all https://github.com/sbwml/luci-app-openlist2
 clone_all https://github.com/sbwml/luci-app-mosdns
 git_clone https://github.com/sbwml/packages_lang_golang golang
 
-clone_all https://github.com/linkease/istore-ui
-clone_all https://github.com/linkease/istore luci
+clone_all https://github.com/sirpdboy/luci-app-ddns-go
+
+git clone --depth 1 https://github.com/sirpdboy/luci-app-poweroffdevice package/luci-app-poweroffdevice
+
+# clone_all https://github.com/linkease/istore-ui
+# clone_all https://github.com/linkease/istore luci
 
 clone_all https://github.com/brvphoenix/luci-app-wrtbwmon
 clone_all https://github.com/brvphoenix/wrtbwmon
 
 # 科学上网插件
-clone_all https://github.com/fw876/helloworld
-clone_all https://github.com/xiaorouji/openwrt-passwall-packages
-clone_all https://github.com/xiaorouji/openwrt-passwall
-clone_all https://github.com/xiaorouji/openwrt-passwall2
+# clone_all https://github.com/fw876/helloworld
+# clone_all https://github.com/xiaorouji/openwrt-passwall-packages
+# clone_all https://github.com/xiaorouji/openwrt-passwall
+# clone_all https://github.com/xiaorouji/openwrt-passwall2
 clone_dir https://github.com/vernesong/OpenClash luci-app-openclash
-clone_dir https://github.com/sbwml/openwrt_helloworld shadowsocks-rust
+# clone_dir https://github.com/sbwml/openwrt_helloworld shadowsocks-rust
 
 # Themes
 git_clone https://github.com/kiddin9/luci-theme-edge
@@ -263,10 +271,10 @@ git_clone https://github.com/jerrykuku/luci-theme-argon
 git_clone https://github.com/jerrykuku/luci-app-argon-config
 
 # 晶晨宝盒
-clone_all https://github.com/ophub/luci-app-amlogic
-sed -i "s|firmware_repo.*|firmware_repo 'https://github.com/$GITHUB_REPOSITORY'|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
+# clone_all https://github.com/ophub/luci-app-amlogic
+# sed -i "s|firmware_repo.*|firmware_repo 'https://github.com/$GITHUB_REPOSITORY'|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
 # sed -i "s|kernel_path.*|kernel_path 'https://github.com/ophub/kernel'|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
-sed -i "s|ARMv8|$RELEASE_TAG|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
+#sed -i "s|ARMv8|$RELEASE_TAG|g" $destination_dir/luci-app-amlogic/root/etc/config/amlogic
 
 # 加载个人设置
 begin_time=$(date '+%H:%M:%S')
@@ -304,12 +312,16 @@ echo "DISTRIB_DATE='R$(date +%y.%-m.%-d)'" >>package/base-files/files/etc/openwr
 sed -i 's/system/status/g' feeds/luci/applications/luci-app-netdata/luasrc/controller/netdata.lua
 
 # 更改 ttyd 顺序和名称
+sed -i 's/services/system/g' feeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/luci-app-ttyd.json
 sed -i '3a \		"order": 10,' feeds/luci/applications/luci-app-ttyd/root/usr/share/luci/menu.d/luci-app-ttyd.json
 sed -i 's/\"终端\"/\"TTYD 终端\"/g' feeds/luci/applications/luci-app-ttyd/po/zh_Hans/ttyd.po
 
 # 设置 nlbwmon 独立菜单
 sed -i 's/services\/nlbw/nlbw/g; /path/s/admin\///g' feeds/luci/applications/luci-app-nlbwmon/root/usr/share/luci/menu.d/luci-app-nlbwmon.json
 sed -i 's/services\///g' feeds/luci/applications/luci-app-nlbwmon/htdocs/luci-static/resources/view/nlbw/config.js
+
+# x86 型号只显示 CPU 型号
+sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/lean/autocore/files/x86/autocore
 
 # 修复 Makefile 路径
 find $destination_dir/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i \
@@ -341,12 +353,12 @@ status "更新配置文件"
 }
 
 # 下载adguardhome运行内核
-[[ $CLASH_KERNEL =~ amd64|arm64|armv7|armv6|armv5|386 ]] && grep -q "luci-app-adguardhome=y" .config && {
-    begin_time=$(date '+%H:%M:%S')
-    chmod +x $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh
-    $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh $CLASH_KERNEL
-    status "下载adguardhome运行内核"
-}
+# [[ $CLASH_KERNEL =~ amd64|arm64|armv7|armv6|armv5|386 ]] && grep -q "luci-app-adguardhome=y" .config && {
+#    begin_time=$(date '+%H:%M:%S')
+#    chmod +x $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh
+#    $GITHUB_WORKSPACE/scripts/preset-adguard-core.sh $CLASH_KERNEL
+#    status "下载adguardhome运行内核"
+# }
 
 # 下载zsh终端工具
 [[ $ZSH_TOOL = 'true' ]] && grep -q "zsh=y" .config && {
