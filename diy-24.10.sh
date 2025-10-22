@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export Op_name="EthanWRT" 
+
 # 打包Toolchain
 if [[ $REBUILD_TOOLCHAIN = 'true' ]]; then
     echo -e "\e[1;33m开始打包toolchain目录\e[0m"
@@ -236,6 +238,8 @@ color cy "添加&替换插件"
 sed -i "/uci commit system/i\uci set system.@system[0].hostname='EthanWRT'" package/lean/default-settings/files/zzz-default-settings
 sed -i "s/hostname='.*'/hostname='EthanWRT'/g" ./package/base-files/luci2/bin/config_generate
 
+
+
 # 添加额外插件
 # clone_dir openwrt-23.05 https://github.com/coolsnowwolf/luci luci-app-adguardhome
 # git_clone https://github.com/immortalwrt/homeproxy luci-app-homeproxy
@@ -323,6 +327,9 @@ sed -i 's/services\///g' feeds/luci/applications/luci-app-nlbwmon/htdocs/luci-st
 # x86 型号只显示 CPU 型号
 sed -i 's/${g}.*/${a}${b}${c}${d}${e}${f}${hydrid}/g' package/lean/autocore/files/x86/autocore
 
+# 修改KMS菜单名
+grep -rl '"Vlmcsd KMS 服务器"' . | xargs -r sed -i 's?"Vlmcsd KMS 服务器"?"KMS 服务器"?g'
+
 # 修复 Makefile 路径
 find $destination_dir/*/ -maxdepth 2 -path "*/Makefile" | xargs -i sed -i \
     -e 's?\.\./\.\./luci.mk?$(TOPDIR)/feeds/luci/luci.mk?' \
@@ -369,6 +376,22 @@ status "更新配置文件"
 }
 
 echo -e "$(color cy 当前编译机型) $(color cb $SOURCE_REPO-${REPO_BRANCH#*-}-$DEVICE_TARGET-$KERNEL_VERSION)"
+
+# 调整 V2ray服务器 到 VPN 菜单
+sed -i 's/services/vpn/g' feeds/luci/applications/luci-app-v2ray-server/luasrc/controller/*.lua
+sed -i 's/services/vpn/g' feeds/luci/applications/luci-app-v2ray-server/luasrc/model/cbi/v2ray_server/*.lua
+sed -i 's/services/vpn/g' feeds/luci/applications/luci-app-v2ray-server/luasrc/view/v2ray_server/*.htm
+
+# 修改版本为编译日期
+date_version=$(date +"%y.%m.%d")
+orig_version=$(cat "package/lean/default-settings/files/zzz-default-settings" | grep DISTRIB_REVISION= | awk -F "'" '{print $2}')
+sed -i "s/${orig_version}/R${date_version} by Ethan/g" package/lean/default-settings/files/zzz-default-settings
+
+# 在线用户
+clone_all https://github.com/xuanranran/luci-app-onliner
+sed -i '$i uci set nlbwmon.@nlbwmon[0].refresh_interval=2s' package/lean/default-settings/files/zzz-default-settings
+sed -i '$i uci commit nlbwmon' package/lean/default-settings/files/zzz-default-settings
+chmod 755 package/luci-app-onliner/root/usr/share/onliner/setnlbw.sh
 
 # 更改固件文件名
 # sed -i "s/\$(VERSION_DIST_SANITIZED)/$SOURCE_REPO-${REPO_BRANCH#*-}-$KERNEL_VERSION/" include/image.mk
